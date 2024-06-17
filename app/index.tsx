@@ -1,16 +1,33 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Image, TextInput, TouchableOpacity, Text, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MagnifyingGlassCircleIcon } from "react-native-heroicons/outline";
 import { CalendarDaysIcon, MapPinIcon } from "react-native-heroicons/solid";
+import { debounce } from 'lodash'
+import { fetchLocations } from "@/api/weather";
 
 const Home = () => {
+  const [locations, setLocations] = useState([]);
   const [showSearch, toggleSearch] = useState(false);
-  const [locations, setLocations] = useState([1, 2, 3]);
+ 
+
   const handleLocation = (location: any) => {
-    console.log(location);
+
+
   };
+
+  const handleSearch = (value: any) => {
+    // fetch locations using api
+    if (value.length > 2) {
+      fetchLocations({ cityName: value }).then((data) => {
+        setLocations(data.location ? [data.location] : []);
+        console.log(data.location.country)
+      }
+      )
+    }
+  }
+  const handleTextDebounce = useCallback(debounce(handleSearch, 1200), [])
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" />
@@ -40,6 +57,7 @@ const Home = () => {
           >
             {showSearch ? (
               <TextInput
+                onChangeText={handleTextDebounce}
                 placeholder="Search City"
                 placeholderTextColor="white"
                 style={{
@@ -55,6 +73,7 @@ const Home = () => {
             <TouchableOpacity
               onPress={() => {
                 toggleSearch(!showSearch);
+                setLocations([])
               }}
               style={{
                 backgroundColor: "lightgray",
@@ -79,7 +98,8 @@ const Home = () => {
                   >
                     <MapPinIcon size={20} color="gray" />
                     <Text className="text-black text-lg ml-2">
-                      London, United Kingdom,
+                      {loc.name},  {loc.country}
+
                     </Text>
                   </TouchableOpacity>
                 );
@@ -199,7 +219,7 @@ const Home = () => {
               <Text className="text-white">Monday</Text>
               <Text className="text-white text-xl font-semibold">22&#176;C</Text>
             </View>
-            
+
           </ScrollView>
         </View>
       </SafeAreaView>
