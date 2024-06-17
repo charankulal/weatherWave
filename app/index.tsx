@@ -1,38 +1,46 @@
-import { View, Text, ScrollView } from 'react-native';
 import React from 'react';
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Image, TextInput } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Home = () => {
   return (
-    <SafeAreaView className="bg-white h-full">
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>
-            Welcome to WeatherWave
-          </Text>
-          <Text style={{ fontSize: 16, color: '#666', marginTop: 8 }}>
-            Stay informed about the latest weather conditions.
-          </Text>
+    <View style={{ flex: 1 }}>
+      <StatusBar style='light' />
+      <Image
+        blurRadius={90}
+        source={require('../assets/images/bg.png')}
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ height: '7%', marginHorizontal: 16, zIndex: 50 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              borderRadius: 20,
+              backgroundColor: 'gray',
+              height: 60,
+              marginTop: 10,
+            }}
+          >
+            <TextInput
+              placeholder='Search City'
+              placeholderTextColor='white'
+              style={{ paddingLeft: 12, flex: 1, fontSize: 20, color: 'white', height: '100%' }}
+            />
+          </View>
         </View>
-        <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#333' }}>
-            Today's Weather
-          </Text>
-          <Text style={{ fontSize: 16, color: '#666', marginTop: 8 }}>
-            Check out the weather updates for today.
-          </Text>
-        </View>
-        <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#333' }}>
-            Weekly Forecast
-          </Text>
-          <Text style={{ fontSize: 16, color: '#666', marginTop: 8 }}>
-            Plan your week with our accurate weather forecasts.
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
-}
+};
 
 export default Home;
