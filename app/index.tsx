@@ -1,33 +1,50 @@
 import React, { useCallback, useState } from "react";
-import { View, Image, TextInput, TouchableOpacity, Text, ScrollView } from "react-native";
+import {
+  View,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MagnifyingGlassCircleIcon } from "react-native-heroicons/outline";
 import { CalendarDaysIcon, MapPinIcon } from "react-native-heroicons/solid";
-import { debounce } from 'lodash'
-import { fetchLocations } from "@/api/weather";
+import { debounce } from "lodash";
+import { fetchForecastData, fetchLocations } from "@/api/weather";
+import { locationData, weatherData, weatherImages } from "@/constants";
 
 const Home = () => {
   const [locations, setLocations] = useState([]);
   const [showSearch, toggleSearch] = useState(false);
- 
+  const [weather, setWeather] = useState(weatherData);
 
   const handleLocation = (location: any) => {
-
-
+    setLocations([]);
+    toggleSearch(false);
+    fetchForecastData({
+      cityName: location.name,
+      days: 7,
+    }).then((data) => {
+      setWeather(data);
+      console.log(data)
+    });
   };
 
   const handleSearch = (value: any) => {
     // fetch locations using api
     if (value.length > 2) {
-      fetchLocations({ cityName: value }).then((data) => {
-        setLocations(data.location ? [data.location] : []);
-        console.log(data.location.country)
-      }
-      )
+      fetchLocations({ cityName: value }).then((data:any) => {
+        setLocations(data );
+      });
     }
-  }
-  const handleTextDebounce = useCallback(debounce(handleSearch, 1200), [])
+  };
+
+  const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
+
+  const { current, location } = weather;
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" />
@@ -73,7 +90,7 @@ const Home = () => {
             <TouchableOpacity
               onPress={() => {
                 toggleSearch(!showSearch);
-                setLocations([])
+                setLocations([]);
               }}
               style={{
                 backgroundColor: "lightgray",
@@ -98,8 +115,7 @@ const Home = () => {
                   >
                     <MapPinIcon size={20} color="gray" />
                     <Text className="text-black text-lg ml-2">
-                      {loc.name},  {loc.country}
-
+                      {loc.name}, {loc.country}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -111,23 +127,23 @@ const Home = () => {
 
         <View className="mx-4 flex justify-around flex-1 mb-2">
           <Text className="text-white text-center text-2xl font-bold">
-            London, &nbsp;
+            {location.name}, &nbsp;
             <Text className="text-lg font-semibold text-gray-300 m-2">
-              United Kingdom
+              {location.country}
             </Text>
           </Text>
           <View className="flex-row justify-center ">
             <Image
               className="w-52 h-52"
-              source={require("../assets/images/partlycloudy.png")}
+              source={weatherImages[current.condition.text]}
             />
           </View>
           <View className="space-y-2">
             <Text className="text-center font-bold text-white text-6xl ml-5">
-              23&#176; C
+              {current.temp_c}&#176; C
             </Text>
             <Text className="text-center text-white text-xl tracking-widest">
-              Partly Cloud
+              {current.condition.text}
             </Text>
           </View>
           <View className="flex-row justify-between mx-4">
@@ -136,14 +152,18 @@ const Home = () => {
                 source={require("../assets/icons/wind.png")}
                 className="h-6 w-6"
               />
-              <Text className="text-white font-semibold text-base">22km</Text>
+              <Text className="text-white font-semibold text-base">
+                {current.wind_kph}km
+              </Text>
             </View>
             <View className="flex-row space-x-2 items-center">
               <Image
                 source={require("../assets/icons/drop.png")}
                 className="h-6 w-6"
               />
-              <Text className="text-white font-semibold text-base">23%</Text>
+              <Text className="text-white font-semibold text-base">
+                {current.humidity}%
+              </Text>
             </View>
             <View className="flex-row space-x-2 items-center">
               <Image
@@ -162,64 +182,33 @@ const Home = () => {
             <CalendarDaysIcon size={22} color="white" />
             <Text className="text-white text-base">Daily Forecast</Text>
           </View>
-          <ScrollView horizontal contentContainerStyle={{ paddingHorizontal: 15 }} showsHorizontalScrollIndicator={false}>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
-            <View className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-              style={{ backgroundColor: "gray" }}>
-              <Image source={require('../assets/images/heavyrain.png')}
-                className="h-11 w-11"
-              />
-              <Text className="text-white">Monday</Text>
-              <Text className="text-white text-xl font-semibold">22&#176;C</Text>
-            </View>
+          <ScrollView
+            horizontal
+            contentContainerStyle={{ paddingHorizontal: 15 }}
+            showsHorizontalScrollIndicator={false}
+          >
+            {weather.forecast.forecastday.map((item: any, index: any) => {
+              let date = new Date(item.date);
 
+              let dayName = date.toLocaleDateString("en-US");
+              dayName = dayName.split(",")[0];
+              return (
+                <View
+                  className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
+                  key={index}
+                  style={{ backgroundColor: "gray" }}
+                >
+                  <Image
+                    source={weatherImages[item.day.condition.text]}
+                    className="h-11 w-11"
+                  />
+                  <Text className="text-white">{dayName}</Text>
+                  <Text className="text-white text-xl font-semibold">
+                    {item.day.avgtemp_c}&#176;C
+                  </Text>
+                </View>
+              );
+            })}
           </ScrollView>
         </View>
       </SafeAreaView>

@@ -23,5 +23,5 @@ export const fetchForecastData = (params: any) => {
 }
 
 export const fetchLocations = (params: any) => {
-    return apiCall(forecastEndpoints(params))
+    return apiCall(locationEndpoints(params))
 }
